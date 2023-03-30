@@ -6,7 +6,7 @@ async function main() {
   const akiyaCount = await fetchAkiyaCount();
   if (!akiyaCount) {
     console.error("Failed to retrieve akiya count. Exiting the process.");
-    return;
+    exit(1);
   }
 
   // 2. 件数をgistに保存 & 前回の件数と比較して増えてるか判定
@@ -14,11 +14,16 @@ async function main() {
 
   // 3. 増えてたらLINEボットで通知
   const ok = await notifyToBot(akiyaCount);
-  if (ok) {
-    console.log("LINE bot notification succeeded.");
-  } else {
+  if (!ok) {
     console.error("LINE bot notification failed.");
+    exit(1);
   }
+
+  console.log("LINE bot notification succeeded.");
+}
+
+function exit(code = 0): never {
+  Deno.exit(code);
 }
 
 if (import.meta.main) {
