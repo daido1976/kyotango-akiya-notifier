@@ -1,0 +1,23 @@
+name: Notify Job
+
+on:
+  schedule:
+    - cron: "0 23 * * *" # 毎日 8:00（JST）に実行
+  # for debug
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Setup repo
+        uses: actions/checkout@v3
+      - name: Setup Deno
+        uses: denoland/setup-deno@9db7f66e8e16b5699a514448ce994936c63f0d54
+        with:
+          deno-version: v1.x
+      - name: Run Script
+        run: deno run --allow-read --allow-env --allow-net main.ts
