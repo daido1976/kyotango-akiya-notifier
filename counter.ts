@@ -1,3 +1,5 @@
+// TODO: gist かスプレッドシートに保存するように書き直す
+
 // See. https://countapi.xyz/
 async function get(): Promise<number | null> {
   const res = await fetch(
