@@ -12,7 +12,7 @@ async function main() {
   // 2. 件数をgistに保存 & 前回の件数と比較して増えてるか判定
   // TODO: 実装する
 
-  // 3. 増えてたらLINEボットで通知
+  // 3. 増えてたら LINE ボットで通知
   const ok = await notifyToBot(akiyaCount);
   if (!ok) {
     console.error("LINE bot notification failed.");
