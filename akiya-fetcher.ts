@@ -10,7 +10,7 @@ export async function fetchAkiyaCount(): Promise<number | null> {
   const match = regex.exec(htmlString);
   if (!match) {
     console.error(
-      "マッチする文字列がありません。正規表現が間違っている可能性があります。"
+      "No matching string found. The regular expression may be invalid."
     );
     return null;
   }
