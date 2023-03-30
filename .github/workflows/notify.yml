@@ -20,4 +20,6 @@ jobs:
         with:
           deno-version: v1.x
       - name: Run Script
+        env:
+          LINE_CHANNEL_ACCESS_TOKEN: ${{ secrets.LINE_CHANNEL_ACCESS_TOKEN }}
         run: deno run --allow-read --allow-env --allow-net main.ts
