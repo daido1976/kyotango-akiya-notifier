@@ -21,6 +21,7 @@ export async function notifyToBot(count: number): Promise<boolean> {
         messages: [
           {
             type: "text",
+            // TODO: 通知メッセージをいい感じに変更する
             text: `現在の空き家の件数は ${count} です。\nhttps://kyotango-akiya.jp/akiya/?sr=1&kind=%E8%B3%83%E8%B2%B8`,
           },
         ],
