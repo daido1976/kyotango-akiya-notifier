@@ -1,20 +1,14 @@
-// TODO: gist かスプレッドシートに保存するように書き直す
+import { DB } from "./db.ts";
 
-// See. https://countapi.xyz/
 async function get(): Promise<number | null> {
-  const res = await fetch(
-    "https://api.countapi.xyz/get/kyotango-akiya-notifier/chintai"
-  );
-  const count: { value: number } = await res.json();
-  return count.value;
+  const count = await DB.get("chintaiAkiyaCount");
+  return count ?? null;
 }
 
+// TODO: DB レイヤーでの成功・失敗をハンドリングする
 async function set(value: number): Promise<boolean> {
-  const res = await fetch(
-    `https://api.countapi.xyz/set/kyotango-akiya-notifier/chintai?value=${value}`
-  );
-  const count: { old_value: number; value: number } = await res.json();
-  return !!(count.old_value && count.value);
+  await DB.set("chintaiAkiyaCount", value);
+  return true;
 }
 
 export const Counter = {
@@ -23,14 +17,16 @@ export const Counter = {
 };
 
 // for debug
+import { delay } from "https://deno.land/std@0.182.0/async/delay.ts";
 if (import.meta.main) {
-  // Access the following url to initialize.
-  // https://api.countapi.xyz/create?namespace=kyotango-akiya-notifier&key=chintai&value=20
-
-  // NOTE: create の時に `enable_reset` を 1(true) にセットしないと set ができない仕様があり使い物にならないかも
-  const ok = await Counter.set(19);
-  console.log({ ok });
-
   const count = await Counter.get();
   console.log({ count });
+
+  // with side effect
+  const ok = await Counter.set(count !== null ? count + 1 : 0);
+  console.log({ ok });
+  await delay(10000);
+
+  const count2 = await Counter.get();
+  console.log({ count2 });
 }

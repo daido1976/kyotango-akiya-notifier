@@ -75,8 +75,11 @@ if (import.meta.main) {
   const chintaiAkiyaCount = await get("chintaiAkiyaCount");
   console.log({ chintaiAkiyaCount });
   // with side effect
-  await set("chintaiAkiyaCount", chintaiAkiyaCount ? chintaiAkiyaCount + 1 : 0);
-  await delay(7000);
+  await set(
+    "chintaiAkiyaCount",
+    chintaiAkiyaCount !== undefined ? chintaiAkiyaCount + 1 : 0
+  );
+  await delay(10000);
   const root2 = await getRoot();
   console.log({ root2 });
   const chintaiAkiyaCount2 = await get("chintaiAkiyaCount");
