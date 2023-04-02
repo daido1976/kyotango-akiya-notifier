@@ -1,11 +1,11 @@
-import { fetchAkiyaCount } from "./akiya-fetcher.ts";
+import { AkiyaFetcher } from "./akiya-fetcher.ts";
 import { DB } from "./db.ts";
-import { notifyToBot } from "./notifier.ts";
+import { Notifier } from "./notifier.ts";
 import { compareCount } from "./utils.ts";
 
 async function main() {
   // 1. 京丹後市の空き家バンクから空き家（賃貸のみ）の件数取得
-  const akiyaCount = await fetchAkiyaCount();
+  const akiyaCount = await AkiyaFetcher.fetchCountBy("chintai");
   if (!akiyaCount) {
     console.error("Failed to retrieve akiya count. Exiting the process.");
     exit(1);
@@ -14,11 +14,11 @@ async function main() {
 
   // 2. 前回の件数と比較して増えてるか判定 & 値が変わっていたら DB（Gist）に保存
   const prevAkiyaCount = (await DB.get("chintaiAkiyaCount")) ?? 0;
-  const comparisonResult = compareCount(prevAkiyaCount, akiyaCount);
-  console.log(`The count of akiya is ${comparisonResult}`);
+  const cmpResult = compareCount(prevAkiyaCount, akiyaCount);
+  console.log(`The count of akiya is ${cmpResult}`);
 
-  const shouldNotify = comparisonResult === "increased";
-  const akiyaCountHasChanged = comparisonResult !== "unchanged";
+  const shouldNotify = cmpResult === "increased";
+  const akiyaCountHasChanged = cmpResult !== "unchanged";
 
   if (akiyaCountHasChanged) {
     DB.set("chintaiAkiyaCount", akiyaCount);
@@ -30,7 +30,7 @@ async function main() {
     exit();
   }
 
-  const ok = await notifyToBot(akiyaCount);
+  const ok = await Notifier.notifyToBot(akiyaCount);
   if (!ok) {
     console.error("LINE bot notification failed.");
     exit(1);

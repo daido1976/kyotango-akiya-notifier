@@ -1,4 +1,9 @@
-export async function fetchAkiyaCount(): Promise<number | null> {
+async function fetchCountBy(key: "chintai" | "baibai"): Promise<number | null> {
+  // NOTE: 必要になったら売買の方もサポートする。
+  if (key === "baibai") {
+    throw new Error("Not supported: baibai akiya count retrieval.");
+  }
+
   const response = await fetch(
     // https://kyotango-akiya.jp/akiya/?sr=1&kind=賃貸
     "https://kyotango-akiya.jp/akiya/?sr=1&kind=%E8%B3%83%E8%B2%B8"
@@ -19,8 +24,12 @@ export async function fetchAkiyaCount(): Promise<number | null> {
   return parseInt(akiyaCount);
 }
 
+export const AkiyaFetcher = {
+  fetchCountBy,
+};
+
 // for debug
 if (import.meta.main) {
-  const akiyaCount = await fetchAkiyaCount();
+  const akiyaCount = await AkiyaFetcher.fetchCountBy("chintai");
   console.log({ akiyaCount });
 }

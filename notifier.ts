@@ -9,7 +9,7 @@ type LineApiErrorResponse = {
   }[];
 };
 
-export async function notifyToBot(count: number): Promise<boolean> {
+async function notifyToBot(count: number): Promise<boolean> {
   try {
     const res = await fetch("https://api.line.me/v2/bot/message/broadcast", {
       method: "POST",
@@ -52,8 +52,12 @@ function handleErrorResponse(res: Response, errRes: LineApiErrorResponse) {
   }
 }
 
+export const Notifier = {
+  notifyToBot,
+};
+
 // for debug
 if (import.meta.main) {
-  const result = await notifyToBot(10);
+  const result = await Notifier.notifyToBot(10);
   console.log({ result });
 }
