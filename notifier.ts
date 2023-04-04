@@ -44,13 +44,14 @@ async function sendLineMessage(
   message: string,
   test: boolean
 ): Promise<Response> {
+  const messagingApiPrefix = "https://api.line.me/v2/bot/message";
   const options = test
     ? {
         message: "【テスト】\n" + message,
-        url: "https://api.line.me/v2/bot/message/push",
+        url: `${messagingApiPrefix}/push`,
         to: testLineUserId,
       }
-    : { message, url: "https://api.line.me/v2/bot/message/broadcast" };
+    : { message, url: `${messagingApiPrefix}/broadcast` };
 
   const body: LineRequestBody = {
     messages: [
