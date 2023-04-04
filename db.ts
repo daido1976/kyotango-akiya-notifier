@@ -31,7 +31,13 @@ type SchemaKey = keyof Schema;
 async function getRoot(): Promise<Schema> {
   const req = await fetch(`https://api.github.com/gists/${gistId}`);
   const gist: GistResponse = await req.json();
-  return JSON.parse(gist.files[gistFileName].content);
+  const file = gist.files[gistFileName];
+  // TODO: 返り値の型で失敗を表現する
+  if (!file) {
+    throw new Error(`Gist file "${gistFileName}" not found`);
+  }
+
+  return JSON.parse(file.content);
 }
 
 async function get<T extends SchemaKey>(

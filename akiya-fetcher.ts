@@ -15,12 +15,19 @@ async function fetchCountBy(key: "chintai" | "baibai"): Promise<number | null> {
   const match = regex.exec(htmlString);
   if (!match) {
     console.error(
-      "No matching string found. The regular expression may be invalid."
+      "No matching string found. The regular expression may be invalid or the HTML may have changed."
     );
     return null;
   }
 
   const akiyaCount = match[1];
+  if (!akiyaCount) {
+    console.error(
+      "No akiya count found. The regular expression may be invalid or the HTML may have changed."
+    );
+    return null;
+  }
+
   return parseInt(akiyaCount);
 }
 
