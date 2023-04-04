@@ -1,4 +1,4 @@
-import { lineChannelAccessToken } from "./env.ts";
+import { lineChannelAccessToken, testLineUserId } from "./env.ts";
 
 // See. https://developers.line.biz/ja/reference/messaging-api/#send-broadcast-message-error-response
 type LineApiErrorResponse = {
@@ -9,23 +9,22 @@ type LineApiErrorResponse = {
   }[];
 };
 
-async function notifyToBot(count: number): Promise<boolean> {
+type LineRequestBody = {
+  to?: string;
+  messages: {
+    type: string;
+    text: string;
+  }[];
+};
+
+async function notifyToBot(
+  count: number,
+  options: { test?: boolean } = {}
+): Promise<boolean> {
   try {
-    const res = await fetch("https://api.line.me/v2/bot/message/broadcast", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: `Bearer ${lineChannelAccessToken}`,
-      },
-      body: JSON.stringify({
-        messages: [
-          {
-            type: "text",
-            text: `新しい賃貸の空き家が追加されました✨\n現在の空き家の件数は ${count} 件です🏠\nhttps://kyotango-akiya.jp/akiya/?sr=1&kind=%E8%B3%83%E8%B2%B8`,
-          },
-        ],
-      }),
-    });
+    const { test = false } = options;
+    const message = `新しい賃貸の空き家が追加されました✨\n現在の空き家の件数は ${count} 件です🏠\nhttps://kyotango-akiya.jp/akiya/?sr=1&kind=%E8%B3%83%E8%B2%B8`;
+    const res = await sendLineMessage(message, test);
 
     if (res.ok) {
       console.log("Message sent successfully!");
@@ -39,6 +38,41 @@ async function notifyToBot(count: number): Promise<boolean> {
     console.error(e);
     return false;
   }
+}
+
+async function sendLineMessage(
+  message: string,
+  test: boolean
+): Promise<Response> {
+  const options = test
+    ? {
+        message: "【テスト】\n" + message,
+        url: "https://api.line.me/v2/bot/message/push",
+        to: testLineUserId,
+      }
+    : { message, url: "https://api.line.me/v2/bot/message/broadcast" };
+
+  const body: LineRequestBody = {
+    messages: [
+      {
+        type: "text",
+        text: options.message,
+      },
+    ],
+  };
+
+  if (options.to) {
+    body.to = options.to;
+  }
+
+  return await fetch(options.url, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${lineChannelAccessToken}`,
+    },
+    body: JSON.stringify(body),
+  });
 }
 
 function handleErrorResponse(res: Response, errRes: LineApiErrorResponse) {
@@ -58,6 +92,6 @@ export const Notifier = {
 
 // for debug
 if (import.meta.main) {
-  const result = await Notifier.notifyToBot(10);
+  const result = await Notifier.notifyToBot(10, { test: true });
   console.log({ result });
 }
