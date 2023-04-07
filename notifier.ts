@@ -1,4 +1,8 @@
-import { LINE_CHANNEL_ACCESS_TOKEN, TEST_LINE_USER_ID } from "./env.ts";
+import {
+  DENO_ENV,
+  LINE_CHANNEL_ACCESS_TOKEN,
+  TEST_LINE_USER_ID,
+} from "./env.ts";
 
 // See. https://developers.line.biz/ja/reference/messaging-api/#send-broadcast-message-error-response
 type LineApiErrorResponse = {
@@ -17,14 +21,10 @@ type LineRequestBody = {
   }[];
 };
 
-async function notifyToBot(
-  count: number,
-  options: { test?: boolean } = {}
-): Promise<boolean> {
+async function notifyToBot(count: number): Promise<boolean> {
   try {
-    const { test = false } = options;
     const message = `新しい賃貸の空き家が追加されました✨\n現在の空き家の件数は ${count} 件です🏠\nhttps://kyotango-akiya.jp/akiya/?sr=1&kind=%E8%B3%83%E8%B2%B8`;
-    const res = await sendLineMessage(message, test);
+    const res = await sendLineMessage(message);
 
     if (res.ok) {
       console.log("Message sent successfully!");
@@ -40,12 +40,10 @@ async function notifyToBot(
   }
 }
 
-async function sendLineMessage(
-  message: string,
-  test: boolean
-): Promise<Response> {
+async function sendLineMessage(message: string): Promise<Response> {
   const messagingApiPrefix = "https://api.line.me/v2/bot/message";
-  const options = test
+  const isTest = DENO_ENV === "development";
+  const options = isTest
     ? {
         message: "【テスト】\n" + message,
         url: `${messagingApiPrefix}/push`,
@@ -93,6 +91,6 @@ export const Notifier = {
 
 // for debug
 if (import.meta.main) {
-  const result = await Notifier.notifyToBot(10, { test: true });
+  const result = await Notifier.notifyToBot(10);
   console.log({ result });
 }

@@ -5,6 +5,15 @@ on:
     - cron: "0 23 * * *" # 毎日 8:00（JST）に実行
   # for debug
   workflow_dispatch:
+    inputs:
+      env:
+        description: "Select environment"
+        required: true
+        type: "choice"
+        default: "development"
+        options:
+          - development
+          - production
 
 permissions:
   contents: read
@@ -24,4 +33,5 @@ jobs:
           LINE_CHANNEL_ACCESS_TOKEN: ${{ secrets.LINE_CHANNEL_ACCESS_TOKEN }}
           GIST_ID: ${{ vars.GIST_ID }}
           GIST_TOKEN: ${{ secrets.GIST_TOKEN }}
+          DENO_ENV: ${{ inputs.env || 'production' }}
         run: deno run --allow-read --allow-env --allow-net main.ts

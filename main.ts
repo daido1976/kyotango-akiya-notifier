@@ -44,6 +44,5 @@ function exit(code = 0): never {
 }
 
 if (import.meta.main) {
-  // TODO: notifyToBot 関数に test 引数を渡せるようにする（main 関数に引数として注入する or `TEST` 環境変数で注入する）
   await main();
 }
