@@ -1,10 +1,5 @@
 import { DOMParser } from "https://esm.sh/linkedom@0.14.25";
-
-type Akiya = {
-  slug: number;
-  url: string;
-  imgUrl: string;
-};
+import { Akiya } from "./types.ts";
 
 async function fetchAkiyasBy(
   key: "chintai" | "baibai"

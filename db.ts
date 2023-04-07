@@ -2,6 +2,7 @@
 // https://github.com/TimMikeladze/gist-database
 // https://dev.to/rikurouvila/how-to-use-a-github-gist-as-a-free-database-20np
 import { DENO_ENV, GIST_ID, GIST_TOKEN } from "./env.ts";
+import { Akiya } from "./types.ts";
 
 // NOTE: 最初に {} をセットする必要あり。
 const gistFileName =
@@ -26,6 +27,7 @@ type Schema = {
   // NOTE: 綺麗にするなら `{ akiyaCount?: { chintai?: number, baibai?: number }, ... }` としてもいいかもだが、現在はスキーマが単純なのでフラットにしておく
   // Not currently in use
   baibaiAkiyaCount?: number;
+  chintaiAkiyas?: Akiya[];
 };
 type SchemaKey = keyof Schema;
 
@@ -62,7 +64,7 @@ async function get<T extends SchemaKey>(
 
 // NOTE: Gist の更新は反映まで数秒のタイムラグがある様子
 async function set<T extends SchemaKey>(
-  key: SchemaKey,
+  key: T,
   value: Schema[T]
 ): Promise<boolean> {
   const root = await getRoot();
@@ -71,7 +73,8 @@ async function set<T extends SchemaKey>(
     return false;
   }
 
-  root[key] = value;
+  // deno-lint-ignore no-explicit-any
+  root[key] = value as any;
   try {
     const req = await fetch(`https://api.github.com/gists/${GIST_ID}`, {
       method: "PATCH",
