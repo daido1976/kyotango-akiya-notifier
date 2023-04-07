@@ -1,7 +1,7 @@
 // refs.
 // https://github.com/TimMikeladze/gist-database
 // https://dev.to/rikurouvila/how-to-use-a-github-gist-as-a-free-database-20np
-import { gistId, gistToken } from "./env.ts";
+import { GIST_ID, GIST_TOKEN } from "./env.ts";
 
 // NOTE: 最初に {} をセットする必要あり。
 const gistFileName = "kyotango-akiya-notifier.json";
@@ -29,7 +29,7 @@ type SchemaKey = keyof Schema;
 // TODO: 全体的に API リクエストが失敗した時のハンドリングをサボっているのでやる
 // TODO: 該当の Gist やファイルがない場合、content が空（""）の場合も考慮する
 async function getRoot(): Promise<Schema> {
-  const req = await fetch(`https://api.github.com/gists/${gistId}`);
+  const req = await fetch(`https://api.github.com/gists/${GIST_ID}`);
   const gist: GistResponse = await req.json();
   const file = gist.files[gistFileName];
   // TODO: 返り値の型で失敗を表現する
@@ -51,10 +51,10 @@ async function get<T extends SchemaKey>(
 async function set<T extends SchemaKey>(key: SchemaKey, value: Schema[T]) {
   const root = await getRoot();
   root[key] = value;
-  const req = await fetch(`https://api.github.com/gists/${gistId}`, {
+  const req = await fetch(`https://api.github.com/gists/${GIST_ID}`, {
     method: "PATCH",
     headers: {
-      Authorization: `Bearer ${gistToken}`,
+      Authorization: `Bearer ${GIST_TOKEN}`,
     },
     body: JSON.stringify({
       files: {

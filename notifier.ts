@@ -1,4 +1,4 @@
-import { lineChannelAccessToken, testLineUserId } from "./env.ts";
+import { LINE_CHANNEL_ACCESS_TOKEN, TEST_LINE_USER_ID } from "./env.ts";
 
 // See. https://developers.line.biz/ja/reference/messaging-api/#send-broadcast-message-error-response
 type LineApiErrorResponse = {
@@ -49,7 +49,7 @@ async function sendLineMessage(
     ? {
         message: "【テスト】\n" + message,
         url: `${messagingApiPrefix}/push`,
-        to: testLineUserId,
+        to: TEST_LINE_USER_ID,
       }
     : { message, url: `${messagingApiPrefix}/broadcast` };
 
@@ -70,7 +70,7 @@ async function sendLineMessage(
     method: "POST",
     headers: {
       "Content-Type": "application/json",
-      Authorization: `Bearer ${lineChannelAccessToken}`,
+      Authorization: `Bearer ${LINE_CHANNEL_ACCESS_TOKEN}`,
     },
     body: JSON.stringify(body),
   });
