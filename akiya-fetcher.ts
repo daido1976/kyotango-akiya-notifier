@@ -1,6 +1,7 @@
 import { DOMParser } from "https://esm.sh/linkedom@0.14.25";
 
 type Akiya = {
+  slug: number;
   url: string;
   imgUrl: string;
 };
@@ -21,10 +22,18 @@ async function fetchAkiyasBy(
   const document = new DOMParser().parseFromString(htmlString, "text/html");
   const akiyaList = document.querySelector("body > section > div.akiyalist");
   const alImgs = akiyaList.querySelectorAll(".al_img");
-  return Array.from(alImgs, (alImg) => ({
-    url: alImg.querySelector("a").getAttribute("href"),
-    imgUrl: alImg.querySelector("img").getAttribute("src"),
-  }));
+  return Array.from(alImgs, (alImg) => {
+    const url = alImg.querySelector("a").getAttribute("href");
+    const imgUrl = alImg.querySelector("img").getAttribute("src");
+    const slug = parseInt(
+      url.match(/https:\/\/kyotango-akiya\.jp\/akiya\/(\d+)/)[1]
+    );
+    return {
+      slug,
+      url,
+      imgUrl,
+    };
+  });
 }
 
 async function fetchCountBy(key: "chintai" | "baibai"): Promise<number | null> {
