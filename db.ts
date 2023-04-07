@@ -1,10 +1,13 @@
 // refs.
 // https://github.com/TimMikeladze/gist-database
 // https://dev.to/rikurouvila/how-to-use-a-github-gist-as-a-free-database-20np
-import { GIST_ID, GIST_TOKEN } from "./env.ts";
+import { DENO_ENV, GIST_ID, GIST_TOKEN } from "./env.ts";
 
 // NOTE: 最初に {} をセットする必要あり。
-const gistFileName = "kyotango-akiya-notifier.json";
+const gistFileName =
+  DENO_ENV === "development"
+    ? "kyotango-akiya-notifier-test.json"
+    : "kyotango-akiya-notifier.json";
 
 // See. https://docs.github.com/en/rest/gists/gists?apiVersion=2022-11-28#get-a-gist
 type GistResponse = {

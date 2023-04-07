@@ -1,5 +1,6 @@
 import { AkiyaFetcher } from "./akiya-fetcher.ts";
 import { DB } from "./db.ts";
+import { DENO_ENV } from "./env.ts";
 import { Notifier } from "./notifier.ts";
 import { compareCount } from "./utils.ts";
 
@@ -48,5 +49,6 @@ function exit(code = 0): never {
 }
 
 if (import.meta.main) {
+  console.log(`DENO_ENV is "${DENO_ENV}"`);
   await main();
 }
