@@ -22,10 +22,9 @@ type LineRequestBody = {
 };
 
 async function notifyToBot(count: number): Promise<boolean> {
+  const message = `新しい賃貸の空き家が追加されました✨\n現在の空き家の件数は ${count} 件です🏠\nhttps://kyotango-akiya.jp/akiya/?sr=1&kind=%E8%B3%83%E8%B2%B8`;
   try {
-    const message = `新しい賃貸の空き家が追加されました✨\n現在の空き家の件数は ${count} 件です🏠\nhttps://kyotango-akiya.jp/akiya/?sr=1&kind=%E8%B3%83%E8%B2%B8`;
     const res = await sendLineMessage(message);
-
     if (res.ok) {
       console.log("Message sent successfully!");
       return true;

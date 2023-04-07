@@ -26,46 +26,74 @@ type Schema = {
 };
 type SchemaKey = keyof Schema;
 
-// TODO: 全体的に API リクエストが失敗した時のハンドリングをサボっているのでやる
-// TODO: 該当の Gist やファイルがない場合、content が空（""）の場合も考慮する
-async function getRoot(): Promise<Schema> {
-  const req = await fetch(`https://api.github.com/gists/${GIST_ID}`);
-  const gist: GistResponse = await req.json();
-  const file = gist.files[gistFileName];
-  // TODO: 返り値の型で失敗を表現する
-  if (!file) {
-    throw new Error(`Gist file "${gistFileName}" not found`);
-  }
+async function getRoot(): Promise<Schema | undefined> {
+  try {
+    const req = await fetch(`https://api.github.com/gists/${GIST_ID}`);
+    if (!req.ok) {
+      console.error(`Failed to get Gist: ${req.statusText}`);
+      return undefined;
+    }
 
-  return JSON.parse(file.content);
+    const gist: GistResponse = await req.json();
+    const file = gist.files[gistFileName];
+    if (!file || file.content === "") {
+      console.error(
+        `Gist file "${gistFileName}" not found or content is empty`
+      );
+      return undefined;
+    }
+
+    return JSON.parse(file.content);
+  } catch (error) {
+    console.error(`Failed to get Gist: ${error}`);
+    return undefined;
+  }
 }
 
 async function get<T extends SchemaKey>(
   key: T
 ): Promise<Schema[T] | undefined> {
   const root = await getRoot();
-  return root[key];
+  return root ? root[key] : undefined;
 }
 
 // NOTE: Gist の更新は反映まで数秒のタイムラグがある様子
-async function set<T extends SchemaKey>(key: SchemaKey, value: Schema[T]) {
+async function set<T extends SchemaKey>(
+  key: SchemaKey,
+  value: Schema[T]
+): Promise<boolean> {
   const root = await getRoot();
-  root[key] = value;
-  const req = await fetch(`https://api.github.com/gists/${GIST_ID}`, {
-    method: "PATCH",
-    headers: {
-      Authorization: `Bearer ${GIST_TOKEN}`,
-    },
-    body: JSON.stringify({
-      files: {
-        [gistFileName]: {
-          content: JSON.stringify(root, null, 2),
-        },
-      },
-    }),
-  });
+  if (!root) {
+    console.error("Failed to update Gist: failed to get root.");
+    return false;
+  }
 
-  return req.json();
+  root[key] = value;
+  try {
+    const req = await fetch(`https://api.github.com/gists/${GIST_ID}`, {
+      method: "PATCH",
+      headers: {
+        Authorization: `Bearer ${GIST_TOKEN}`,
+      },
+      body: JSON.stringify({
+        files: {
+          [gistFileName]: {
+            content: JSON.stringify(root, null, 2),
+          },
+        },
+      }),
+    });
+
+    if (!req.ok) {
+      console.error(`Failed to update Gist: ${req.statusText}`);
+      return false;
+    }
+
+    return true;
+  } catch (error) {
+    console.error(`Failed to update Gist: ${error}`);
+    return false;
+  }
 }
 
 export const DB = {
@@ -81,10 +109,11 @@ if (import.meta.main) {
   const chintaiAkiyaCount = await get("chintaiAkiyaCount");
   console.log({ chintaiAkiyaCount });
   // with side effect
-  await set(
+  const ok = await set(
     "chintaiAkiyaCount",
     chintaiAkiyaCount !== undefined ? chintaiAkiyaCount + 1 : 0
   );
+  console.log({ ok });
   await delay(10000);
   const root2 = await getRoot();
   console.log({ root2 });

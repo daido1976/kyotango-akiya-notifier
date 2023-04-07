@@ -21,7 +21,11 @@ async function main() {
   const akiyaCountHasChanged = cmpResult !== "unchanged";
 
   if (akiyaCountHasChanged) {
-    DB.set("chintaiAkiyaCount", akiyaCount);
+    const ok = await DB.set("chintaiAkiyaCount", akiyaCount);
+    if (!ok) {
+      console.error("Failed to update DB.");
+      exit(1);
+    }
   }
 
   // 3. 増えてたら LINE ボットで通知
