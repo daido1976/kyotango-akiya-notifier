@@ -29,13 +29,18 @@ describe("difference", () => {
 
 describe("getArrayChanges", () => {
   it("returns empty arrays when both oldArray and newArray are empty", () => {
-    assertEquals(getArrayChanges([], []), { added: [], removed: [] });
+    assertEquals(getArrayChanges([], []), {
+      added: [],
+      removed: [],
+      changed: false,
+    });
   });
 
   it("returns empty added and all elements of oldArray when newArray is empty", () => {
     assertEquals(getArrayChanges([1, 2, 3], []), {
       added: [],
       removed: [1, 2, 3],
+      changed: true,
     });
   });
 
@@ -43,6 +48,7 @@ describe("getArrayChanges", () => {
     assertEquals(getArrayChanges([], [1, 2, 3]), {
       added: [1, 2, 3],
       removed: [],
+      changed: true,
     });
   });
 
@@ -50,6 +56,7 @@ describe("getArrayChanges", () => {
     assertEquals(getArrayChanges([1, 2, 3], [1, 2, 3]), {
       added: [],
       removed: [],
+      changed: false,
     });
   });
 
@@ -57,6 +64,7 @@ describe("getArrayChanges", () => {
     assertEquals(getArrayChanges([1, 2, 3], [2, 3, 4]), {
       added: [4],
       removed: [1],
+      changed: true,
     });
   });
 });

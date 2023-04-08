@@ -21,8 +21,11 @@ export function getArrayChanges<T extends string | number>(
 ): {
   added: T[];
   removed: T[];
+  changed: boolean;
 } {
   const added = difference(newArray, oldArray);
   const removed = difference(oldArray, newArray);
-  return { added, removed };
+  const changed = added.length > 0 || removed.length > 0;
+
+  return { added, removed, changed };
 }
