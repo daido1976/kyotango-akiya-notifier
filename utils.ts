@@ -11,7 +11,6 @@ export function compareCount(
   }
 }
 
-// NOTE: O(N^2) なので注意（パフォーマンスに懸念がある場合は Set を使ったコードに修正する）
 export function difference<T extends string | number>(a: T[], b: T[]): T[] {
-  return a.filter((x) => !b.includes(x));
+  return a.filter((x) => !new Set(b).has(x));
 }
