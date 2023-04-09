@@ -1,41 +1,63 @@
 import { AkiyaFetcher } from "./akiya-fetcher.ts";
 import { DB } from "./db.ts";
 import { DENO_ENV } from "./env.ts";
+import { Akiya } from "./types.ts";
+import { getArrayChanges } from "./utils.ts";
 import { Notifier } from "./notifier.ts";
-import { compareCount } from "./utils.ts";
 
 async function main() {
-  // 1. 京丹後市の空き家バンクから空き家（賃貸のみ）の件数取得
-  const akiyaCount = await AkiyaFetcher.fetchCountBy("chintai");
-  if (!akiyaCount) {
-    console.error("Failed to retrieve akiya count. Exiting the process.");
+  // 1. 京丹後市の空き家バンクから空き家（賃貸のみ）の情報取得
+  const akiyas = await AkiyaFetcher.fetchAkiyasBy("chintai");
+  if (!akiyas) {
+    console.error("Failed to retrieve akiyas. Exiting the process.");
     exit(1);
   }
-  console.log(`The current count of akiya is ${akiyaCount}`);
+  console.log(`The current count of akiya is ${akiyas.length}`);
 
-  // 2. 前回の件数と比較して増えてるか判定 & 値が変わっていたら DB（Gist）に保存
-  const prevAkiyaCount = (await DB.get("chintaiAkiyaCount")) ?? 0;
-  const cmpResult = compareCount(prevAkiyaCount, akiyaCount);
-  console.log(`The count of akiya is ${cmpResult}`);
+  // 2. 現在の空き家の slugs から前回の slugs を引いて差があるか判定 & 差があれば DB（Gist）に保存
+  const prevAkiyas = await DB.get("chintaiAkiyas");
+  if (!prevAkiyas) {
+    console.warn(
+      "Failed to retrieve previous akiyas. After setting current akiyas, Exit the process."
+    );
+    const ok = await DB.set("chintaiAkiyas", akiyas);
+    if (ok) {
+      console.log("Succeeded to update DB. Please run again later.");
+      exit();
+    } else {
+      console.error("Failed to update DB.");
+      exit(1);
+    }
+  }
 
-  const shouldNotify = cmpResult === "increased";
-  const akiyaCountHasChanged = cmpResult !== "unchanged";
+  const slugsFrom = (akiyas: Akiya[]) => akiyas.map((a) => a.slug);
+  const akiyaSlugsChanges = getArrayChanges(
+    slugsFrom(prevAkiyas),
+    slugsFrom(akiyas)
+  );
+  console.log({ akiyaSlugsChanges });
 
-  if (akiyaCountHasChanged) {
-    const ok = await DB.set("chintaiAkiyaCount", akiyaCount);
+  const shouldNotify = akiyaSlugsChanges.added.length > 0;
+  const isAkiyasChanged = akiyaSlugsChanges.changed;
+
+  if (isAkiyasChanged) {
+    const ok = await DB.set("chintaiAkiyas", akiyas);
     if (!ok) {
       console.error("Failed to update DB.");
       exit(1);
     }
   }
 
-  // 3. 増えてたら LINE ボットで通知
+  // 3. 新規の空き家があれば LINE ボットで通知
   if (!shouldNotify) {
-    console.log("No need for notification as akiya count has not increased.");
+    console.log("No need for notification as akiyas has not increased.");
     exit();
   }
 
-  const ok = await Notifier.notifyToBot(akiyaCount);
+  const addedAkiyas = akiyas.filter((a) =>
+    akiyaSlugsChanges.added.includes(a.slug)
+  );
+  const ok = await Notifier.notifyToBot(akiyas.length, addedAkiyas);
   if (!ok) {
     console.error("LINE bot notification failed.");
     exit(1);

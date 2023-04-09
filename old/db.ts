@@ -2,7 +2,6 @@
 // https://github.com/TimMikeladze/gist-database
 // https://dev.to/rikurouvila/how-to-use-a-github-gist-as-a-free-database-20np
 import { DENO_ENV, GIST_ID, GIST_TOKEN } from "./env.ts";
-import { Akiya } from "./types.ts";
 
 // NOTE: 最初に {} をセットする必要あり。
 const gistFileName =
@@ -23,7 +22,10 @@ type GistResponse = {
 };
 
 type Schema = {
-  chintaiAkiyas?: Akiya[];
+  chintaiAkiyaCount?: number;
+  // NOTE: 綺麗にするなら `{ akiyaCount?: { chintai?: number, baibai?: number }, ... }` としてもいいかもだが、現在はスキーマが単純なのでフラットにしておく
+  // Not currently in use
+  baibaiAkiyaCount?: number;
 };
 type SchemaKey = keyof Schema;
 
@@ -108,22 +110,17 @@ import { delay } from "https://deno.land/std@0.182.0/async/delay.ts";
 if (import.meta.main) {
   const root = await getRoot();
   console.log({ root });
-  const chintaiAkiyas = await get("chintaiAkiyas");
-  console.log({ chintaiAkiyas });
+  const chintaiAkiyaCount = await get("chintaiAkiyaCount");
+  console.log({ chintaiAkiyaCount });
   // with side effect
-  // TODO: 現在 gist に保存されている配列 + ランダムな Akiya のオブジェクトにする
-  const ok = await set("chintaiAkiyas", [
-    {
-      slug: 8100,
-      url: "https://kyotango-akiya.jp/akiya/8100/",
-      imgUrl:
-        "https://kyotango-akiya.jp/wp/wp-content/uploads/2023/04/IMG20230404132409-1024x768.jpg",
-    },
-  ]);
+  const ok = await set(
+    "chintaiAkiyaCount",
+    chintaiAkiyaCount !== undefined ? chintaiAkiyaCount + 1 : 0
+  );
   console.log({ ok });
   await delay(10000);
   const root2 = await getRoot();
   console.log({ root2 });
-  const chintaiAkiyas2 = await get("chintaiAkiyas");
-  console.log({ chintaiAkiyas2 });
+  const chintaiAkiyaCount2 = await get("chintaiAkiyaCount");
+  console.log({ chintaiAkiyaCount2 });
 }
