@@ -3,6 +3,7 @@ import { DB } from "./db.ts";
 import { DENO_ENV } from "./env.ts";
 import { Akiya } from "./types.ts";
 import { getArrayChanges } from "./utils.ts";
+import { WipNotifier } from "./wip-notifier.ts";
 
 async function main() {
   // 1. 京丹後市の空き家バンクから空き家（賃貸のみ）の情報取得
@@ -13,7 +14,7 @@ async function main() {
   }
   console.log(`The current count of akiya is ${akiyas.length}`);
 
-  // 2. 現在の slugs から前回の slugs を引いて差があるか判定 & 差があれば DB（Gist）に保存
+  // 2. 現在の空き家の slugs から前回の slugs を引いて差があるか判定 & 差があれば DB（Gist）に保存
   const prevAkiyas = await DB.get("chintaiAkiyas");
   if (!prevAkiyas) {
     console.warn(
@@ -47,18 +48,20 @@ async function main() {
     }
   }
 
-  // 3. 増えてたら LINE ボットで通知
+  // 3. 新規の空き家があれば LINE ボットで通知
   if (!shouldNotify) {
     console.log("No need for notification as akiyas has not increased.");
     exit();
   }
 
-  // TODO: 実装したらコメントアウト外す
-  // const ok = await Notifier.notifyToBot(addedAkiyas);
-  // if (!ok) {
-  //   console.error("LINE bot notification failed.");
-  //   exit(1);
-  // }
+  const addedAkiyas = akiyas.filter((a) =>
+    akiyaSlugsChanges.added.includes(a.slug)
+  );
+  const ok = await WipNotifier.notifyToBot(akiyas.length, addedAkiyas);
+  if (!ok) {
+    console.error("LINE bot notification failed.");
+    exit(1);
+  }
 
   console.log("LINE bot notification succeeded.");
 }
