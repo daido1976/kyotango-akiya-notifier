@@ -111,7 +111,7 @@ if (import.meta.main) {
   const chintaiAkiyas = await get("chintaiAkiyas");
   console.log({ chintaiAkiyas });
   // with side effect
-  // TODO: 現在 gist に保存されている配列 + ランダムな Akiya のオブジェクトにする
+  // TODO: 現在 gist に保存されている配列 + ランダムな Akiya のオブジェクトにする（ランダムな Akiya オブジェクトは ChatGPT 使えば型から生成できそう）
   const ok = await set("chintaiAkiyas", [
     {
       slug: 8100,

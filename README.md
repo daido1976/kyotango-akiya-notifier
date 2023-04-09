@@ -4,6 +4,8 @@ https://kyotango-akiya.jp/ に空き家が追加されていたら通知して�
 
 現在は **賃貸の空き家のみ** の更新通知を行っています。
 
+GitHub Actions のワークフローでスケジュール実行しています。
+
 ## Development
 
 ```sh

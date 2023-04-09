@@ -1,3 +1,4 @@
+// See. https://deno.land/manual@v1.32.3/advanced/jsx_dom/linkedom
 import { DOMParser } from "https://esm.sh/linkedom@0.14.25";
 import { Akiya } from "./types.ts";
 
@@ -17,6 +18,7 @@ async function fetchAkiyasBy(
   const document = new DOMParser().parseFromString(htmlString, "text/html");
   const akiyaList = document.querySelector("body > section > div.akiyalist");
   const alImgs = akiyaList.querySelectorAll(".al_img");
+  // TODO: any 撲滅運動をする
   return Array.from(alImgs, (alImg) => {
     const url = alImg.querySelector("a").getAttribute("href");
     const imgUrl = alImg.querySelector("img").getAttribute("src");
