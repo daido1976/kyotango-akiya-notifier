@@ -23,10 +23,6 @@ type GistResponse = {
 };
 
 type Schema = {
-  chintaiAkiyaCount?: number;
-  // NOTE: 綺麗にするなら `{ akiyaCount?: { chintai?: number, baibai?: number }, ... }` としてもいいかもだが、現在はスキーマが単純なのでフラットにしておく
-  // Not currently in use
-  baibaiAkiyaCount?: number;
   chintaiAkiyas?: Akiya[];
 };
 type SchemaKey = keyof Schema;
@@ -112,17 +108,22 @@ import { delay } from "https://deno.land/std@0.182.0/async/delay.ts";
 if (import.meta.main) {
   const root = await getRoot();
   console.log({ root });
-  const chintaiAkiyaCount = await get("chintaiAkiyaCount");
-  console.log({ chintaiAkiyaCount });
+  const chintaiAkiyas = await get("chintaiAkiyas");
+  console.log({ chintaiAkiyas });
   // with side effect
-  const ok = await set(
-    "chintaiAkiyaCount",
-    chintaiAkiyaCount !== undefined ? chintaiAkiyaCount + 1 : 0
-  );
+  // TODO: 現在 gist に保存されている配列 + ランダムな Akiya のオブジェクトにする
+  const ok = await set("chintaiAkiyas", [
+    {
+      slug: 8100,
+      url: "https://kyotango-akiya.jp/akiya/8100/",
+      imgUrl:
+        "https://kyotango-akiya.jp/wp/wp-content/uploads/2023/04/IMG20230404132409-1024x768.jpg",
+    },
+  ]);
   console.log({ ok });
   await delay(10000);
   const root2 = await getRoot();
   console.log({ root2 });
-  const chintaiAkiyaCount2 = await get("chintaiAkiyaCount");
-  console.log({ chintaiAkiyaCount2 });
+  const chintaiAkiyas2 = await get("chintaiAkiyas");
+  console.log({ chintaiAkiyas2 });
 }

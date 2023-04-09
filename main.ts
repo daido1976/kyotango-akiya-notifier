@@ -3,7 +3,7 @@ import { DB } from "./db.ts";
 import { DENO_ENV } from "./env.ts";
 import { Akiya } from "./types.ts";
 import { getArrayChanges } from "./utils.ts";
-import { WipNotifier } from "./wip-notifier.ts";
+import { Notifier } from "./notifier.ts";
 
 async function main() {
   // 1. 京丹後市の空き家バンクから空き家（賃貸のみ）の情報取得
@@ -57,7 +57,7 @@ async function main() {
   const addedAkiyas = akiyas.filter((a) =>
     akiyaSlugsChanges.added.includes(a.slug)
   );
-  const ok = await WipNotifier.notifyToBot(akiyas.length, addedAkiyas);
+  const ok = await Notifier.notifyToBot(akiyas.length, addedAkiyas);
   if (!ok) {
     console.error("LINE bot notification failed.");
     exit(1);

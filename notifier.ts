@@ -74,7 +74,11 @@ async function sendLineMessage(
       }
     : { message, url: `${messagingApiPrefix}/broadcast` };
 
-  const columns = akiyas.map((akiya) => ({
+  // See. https://developers.line.biz/en/reference/messaging-api/#image-carousel
+  const MAX_COLUMNS = 10;
+  // NOTE: 新着の空き家件数が 10 件より多くなることはほぼないので、10 件以降の要素を切り捨てている。
+  // 必要になったら type: "template" の message を 10 件ずつに分けて送信するように修正する。
+  const columns = akiyas.slice(0, MAX_COLUMNS).map((akiya) => ({
     imageUrl: akiya.imgUrl,
     action: {
       type: "uri",
@@ -125,13 +129,13 @@ function handleErrorResponse(res: Response, errRes: LineApiErrorResponse) {
   }
 }
 
-export const WipNotifier = {
+export const Notifier = {
   notifyToBot,
 };
 
 // for debug
 if (import.meta.main) {
-  const result = await WipNotifier.notifyToBot(20, [
+  const result = await Notifier.notifyToBot(20, [
     {
       slug: 8100,
       url: "https://kyotango-akiya.jp/akiya/8100/",
