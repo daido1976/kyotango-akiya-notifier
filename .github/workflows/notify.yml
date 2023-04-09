@@ -34,4 +34,5 @@ jobs:
           GIST_ID: ${{ secrets.GIST_ID }}
           GIST_TOKEN: ${{ secrets.GIST_TOKEN }}
           DENO_ENV: ${{ inputs.env || 'production' }}
+          TEST_LINE_USER_ID: ${{ secrets.TEST_LINE_USER_ID }}
         run: deno run --allow-read --allow-env --allow-net main.ts
