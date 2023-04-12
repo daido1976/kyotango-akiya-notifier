@@ -14,7 +14,7 @@ async function main() {
   }
   console.log(`The current count of akiya is ${akiyas.length}`);
 
-  // 2. 現在の空き家の slugs から前回の slugs を引いて差があるか判定 & 差があれば DB（Gist）に保存
+  // 2. 現在の空き家の slugs から前回の slugs を引いて差があるか判定
   const prevAkiyas = await DB.get("chintaiAkiyas");
   if (!prevAkiyas) {
     console.warn(
@@ -37,28 +37,28 @@ async function main() {
   );
   console.log({ akiyaSlugsChanges });
 
-  const shouldNotify = akiyaSlugsChanges.added.length > 0;
-  const isAkiyasChanged = akiyaSlugsChanges.changed;
+  const isAkiyasIncreased = akiyaSlugsChanges.added.length > 0;
+  const addedAkiyas = akiyas.filter((a) =>
+    akiyaSlugsChanges.added.includes(a.slug)
+  );
 
-  if (isAkiyasChanged) {
-    const ok = await DB.set("chintaiAkiyas", akiyas);
-    if (!ok) {
-      console.error("Failed to update DB.");
-      exit(1);
-    }
-  }
-
-  // 3. 新規の空き家があれば LINE ボットで通知
-  if (!shouldNotify) {
+  // 3. 新規の空き家があれば DB（Gist）に保存 & LINE ボットで通知
+  if (!isAkiyasIncreased) {
     console.log("No need for notification as akiyas has not increased.");
     exit();
   }
 
-  const addedAkiyas = akiyas.filter((a) =>
-    akiyaSlugsChanges.added.includes(a.slug)
-  );
-  const ok = await Notifier.notifyToBot(akiyas.length, addedAkiyas);
-  if (!ok) {
+  // NOTE: 同じ物件を一度取り下げてからアップし直す場合もあるので、以下の条件で DB を更新する（削除された空き家の情報もそのまま残るということだが、数が少ないので許容する）
+  // 1. 空き家が増えた時のみ DB を更新する
+  // 2. 過去に一度も追加されていない空き家のみ追加する
+  const ok1 = await DB.set("chintaiAkiyas", [...addedAkiyas, ...prevAkiyas]);
+  if (!ok1) {
+    console.error("Failed to update DB.");
+    exit(1);
+  }
+
+  const ok2 = await Notifier.notifyToBot(akiyas.length, addedAkiyas);
+  if (!ok2) {
     console.error("LINE bot notification failed.");
     exit(1);
   }
