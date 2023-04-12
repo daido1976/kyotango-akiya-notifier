@@ -4,6 +4,7 @@ import {
   TEST_LINE_USER_ID,
 } from "./env.ts";
 import { Akiya } from "./types.ts";
+import { Result } from "./utils.ts";
 
 // See. https://developers.line.biz/ja/reference/messaging-api/#send-broadcast-message-error-response
 type LineApiErrorResponse = {
@@ -42,21 +43,21 @@ type LineRequestBody = {
 async function notifyToBot(
   currentCount: number,
   newAkiyas: Akiya[]
-): Promise<boolean> {
+): Promise<Result<void>> {
   const message = `新しい賃貸の空き家が ${newAkiyas.length} 件追加されました✨\n現在の空き家の件数は ${currentCount} 件です🏠\nhttps://kyotango-akiya.jp/akiya/?sr=1&kind=%E8%B3%83%E8%B2%B8`;
   try {
     const res = await sendLineMessage(message, newAkiyas);
     if (res.ok) {
       console.log("Message sent successfully!");
-      return true;
+      return { success: true, value: undefined };
     } else {
       const errRes: LineApiErrorResponse = await res.json();
       handleErrorResponse(res, errRes);
-      return false;
+      return { success: false };
     }
   } catch (e) {
     console.error(e);
-    return false;
+    return { success: false };
   }
 }
 

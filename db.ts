@@ -3,6 +3,7 @@
 // https://dev.to/rikurouvila/how-to-use-a-github-gist-as-a-free-database-20np
 import { DENO_ENV, GIST_ID, GIST_TOKEN } from "./env.ts";
 import { Akiya } from "./types.ts";
+import { Result } from "./utils.ts";
 
 // NOTE: 最初に {} をセットする必要あり。
 const gistFileName =
@@ -29,13 +30,13 @@ type SchemaKey = keyof Schema;
 
 async function getRoot(): Promise<Schema | undefined> {
   try {
-    const req = await fetch(`https://api.github.com/gists/${GIST_ID}`);
-    if (!req.ok) {
-      console.error(`Failed to get Gist: ${req.statusText}`);
+    const res = await fetch(`https://api.github.com/gists/${GIST_ID}`);
+    if (!res.ok) {
+      console.error(`Failed to get Gist: ${res.statusText}`);
       return undefined;
     }
 
-    const gist: GistResponse = await req.json();
+    const gist: GistResponse = await res.json();
     const file = gist.files[gistFileName];
     if (!file || file.content === "") {
       console.error(
@@ -53,6 +54,7 @@ async function getRoot(): Promise<Schema | undefined> {
 
 async function get<T extends SchemaKey>(
   key: T
+  // TODO: Result で表現したほうがいいかも（もしくは Option 型作って表現する）
 ): Promise<Schema[T] | undefined> {
   const root = await getRoot();
   return root ? root[key] : undefined;
@@ -62,17 +64,17 @@ async function get<T extends SchemaKey>(
 async function set<T extends SchemaKey>(
   key: T,
   value: Schema[T]
-): Promise<boolean> {
+): Promise<Result<void>> {
   const root = await getRoot();
   if (!root) {
     console.error("Failed to update Gist: failed to get root.");
-    return false;
+    return { success: false };
   }
 
   // deno-lint-ignore no-explicit-any
   root[key] = value as any;
   try {
-    const req = await fetch(`https://api.github.com/gists/${GIST_ID}`, {
+    const res = await fetch(`https://api.github.com/gists/${GIST_ID}`, {
       method: "PATCH",
       headers: {
         Authorization: `Bearer ${GIST_TOKEN}`,
@@ -86,15 +88,15 @@ async function set<T extends SchemaKey>(
       }),
     });
 
-    if (!req.ok) {
-      console.error(`Failed to update Gist: ${req.statusText}`);
-      return false;
+    if (!res.ok) {
+      console.error(`Failed to update Gist: ${res.statusText}`);
+      return { success: false };
     }
 
-    return true;
+    return { success: true, value: undefined };
   } catch (error) {
     console.error(`Failed to update Gist: ${error}`);
-    return false;
+    return { success: false };
   }
 }
 

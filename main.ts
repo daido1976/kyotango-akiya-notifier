@@ -6,14 +6,14 @@ import {
   exitOnFailure,
   exitOnSuccess,
   getArrayChanges,
-  unwrapOrThrowAsync,
+  unwrapOrThrow,
 } from "./utils.ts";
 import { Notifier } from "./notifier.ts";
 
 async function main() {
   // 1. 京丹後市の空き家バンクから空き家（賃貸のみ）の情報取得
-  const akiyas = await unwrapOrThrowAsync(
-    () => AkiyaFetcher.fetchAkiyasBy("chintai"),
+  const akiyas = unwrapOrThrow(
+    await AkiyaFetcher.fetchAkiyasBy("chintai"),
     () => exitOnFailure("Failed to retrieve akiyas. Exiting the process.")
   );
   console.log(`The current count of akiya is ${akiyas.length}`);
@@ -24,8 +24,9 @@ async function main() {
     console.warn(
       "Failed to retrieve previous akiyas. After setting current akiyas, Exit the process."
     );
-    const ok = await DB.set("chintaiAkiyas", akiyas);
-    if (ok) {
+    // TODO: コンビネータ使う
+    const result = await DB.set("chintaiAkiyas", akiyas);
+    if (result.success) {
       exitOnSuccess("Succeeded to update DB. Please run again later.");
     } else {
       exitOnFailure("Failed to update DB.");
@@ -52,16 +53,13 @@ async function main() {
   // NOTE: 同じ物件を一度取り下げてからアップし直す場合もあるので、以下の条件で DB を更新する（削除された空き家の情報もそのまま残るということだが、数が少ないので許容する）
   // - 空き家が増えた時のみ DB を更新する
   // - 過去に一度も追加されていない空き家のみ追加する
-  await unwrapOrThrowAsync(
-    // TODO: boolean 返すと unwrapOrThrowAsync が意図通り動かないので修正する
-    () => DB.set("chintaiAkiyas", [...addedAkiyas, ...prevAkiyas]),
+  unwrapOrThrow(
+    await DB.set("chintaiAkiyas", [...addedAkiyas, ...prevAkiyas]),
     () => exitOnFailure("Failed to update DB.")
   );
 
-  await unwrapOrThrowAsync(
-    // TODO: boolean 返すと unwrapOrThrowAsync が意図通り動かないので修正する
-    () => Notifier.notifyToBot(akiyas.length, addedAkiyas),
-    () => exitOnFailure("LINE bot notification failed.")
+  unwrapOrThrow(await Notifier.notifyToBot(akiyas.length, addedAkiyas), () =>
+    exitOnFailure("LINE bot notification failed.")
   );
 
   console.log("LINE bot notification succeeded.");
