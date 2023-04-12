@@ -16,3 +16,40 @@ export function getArrayChanges<T extends string | number>(
 
   return { added, removed, changed };
 }
+
+export async function unwrapOrThrowAsync<T>(
+  operation: () => Promise<T>,
+  onNullish: () => never
+): Promise<NonNullable<Awaited<T>>> {
+  const result = await operation();
+  if (result == null) {
+    onNullish();
+  }
+  return result;
+}
+
+export function exitOnSuccess(message?: string): never {
+  if (message) {
+    exitWithLog(message, "log");
+  } else {
+    exit();
+  }
+}
+
+export function exitOnFailure(message: string): never {
+  exitWithLog(message, "error");
+}
+
+function exitWithLog(message: string, logType: "log" | "error"): never {
+  if (logType === "log") {
+    console.log(message);
+    exit();
+  } else {
+    console.error(message);
+    exit(1);
+  }
+}
+
+function exit(code = 0): never {
+  Deno.exit(code);
+}
