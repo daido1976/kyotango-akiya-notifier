@@ -31,6 +31,6 @@ export function getOrThrow<T>(result: Result<T>, onFailure?: () => never) {
   if (onFailure) {
     return onFailure();
   } else {
-    throw new Error("called `unwrapOrThrow` on failure");
+    throw new Error("called `getOrThrow` on failure");
   }
 }

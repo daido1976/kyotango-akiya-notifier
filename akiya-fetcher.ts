@@ -1,7 +1,11 @@
-// See. https://deno.land/manual@v1.32.3/advanced/jsx_dom/linkedom
-import { DOMParser } from "https://esm.sh/linkedom@0.14.25";
+// See. https://deno.land/manual@v1.32.4/advanced/jsx_dom/deno_dom
+import {
+  DOMParser,
+  Element,
+} from "https://deno.land/x/deno_dom@v0.1.37/deno-dom-wasm.ts";
 import { Akiya } from "./types.ts";
 import { Result, failure, success } from "./result.ts";
+import { expect } from "./maybe.ts";
 
 async function fetchAkiyasBy(
   key: "chintai" | "baibai"
@@ -18,15 +22,27 @@ async function fetchAkiyasBy(
     );
     const htmlString = await response.text();
     const document = new DOMParser().parseFromString(htmlString, "text/html");
-    const akiyaList = document.querySelector("body > section > div.akiyalist");
-    const alImgs = akiyaList.querySelectorAll(".al_img");
-    // TODO: any 撲滅運動をする
+    const akiyaList = expect(
+      document?.querySelector("body > section > div.akiyalist"),
+      "Failed to find the akiyaList element."
+    );
+    // See. https://github.com/b-fuze/deno-dom/issues/4#issuecomment-716299531
+    const alImgs = [...akiyaList.querySelectorAll(".al_img")] as Element[];
     const value = Array.from(alImgs, (alImg) => {
-      const url = alImg.querySelector("a").getAttribute("href");
-      const imgUrl = alImg.querySelector("img").getAttribute("src");
-      const slug = parseInt(
-        url.match(/https:\/\/kyotango-akiya\.jp\/akiya\/(\d+)/)[1]
+      const url = expect(
+        alImg.querySelector("a")?.getAttribute("href"),
+        "Failed to retrieve the url attribute."
       );
+      const imgUrl = expect(
+        alImg.querySelector("img")?.getAttribute("src"),
+        "Failed to retrieve the imgUrl attribute."
+      );
+      const slugStr = expect(
+        url.match(/https:\/\/kyotango-akiya\.jp\/akiya\/(\d+)/)?.[1],
+        "Failed to match the URL with the regular expression."
+      );
+      const slug = parseInt(slugStr);
+
       return {
         slug,
         url,
