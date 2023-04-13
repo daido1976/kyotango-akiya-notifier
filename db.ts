@@ -28,7 +28,7 @@ type Schema = {
 };
 type SchemaKey = keyof Schema;
 
-// NOTE: getRoot と get の返り値は Result<Option<Schema>> のような型が正しいのかもしれない（簡易版なら Result<Schema | undefined>）
+// TODO: getRoot と get の返り値の型を Result<Maybe<Schema>> にする
 async function getRoot(): Promise<Result<Schema>> {
   try {
     const res = await fetch(`https://api.github.com/gists/${GIST_ID}`);
