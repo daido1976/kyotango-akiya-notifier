@@ -1,7 +1,7 @@
 // See. https://deno.land/manual@v1.32.3/advanced/jsx_dom/linkedom
 import { DOMParser } from "https://esm.sh/linkedom@0.14.25";
 import { Akiya } from "./types.ts";
-import { Result, success } from "./result.ts";
+import { Result, failure, success } from "./result.ts";
 
 async function fetchAkiyasBy(
   key: "chintai" | "baibai"
@@ -11,30 +11,33 @@ async function fetchAkiyasBy(
     throw new Error("Not supported: baibai akiya count retrieval.");
   }
 
-  // TODO: エラーハンドリングする
-  const response = await fetch(
-    // https://kyotango-akiya.jp/akiya/?sr=1&kind=賃貸
-    "https://kyotango-akiya.jp/akiya/?sr=1&kind=%E8%B3%83%E8%B2%B8"
-  );
-  const htmlString = await response.text();
-  const document = new DOMParser().parseFromString(htmlString, "text/html");
-  const akiyaList = document.querySelector("body > section > div.akiyalist");
-  const alImgs = akiyaList.querySelectorAll(".al_img");
-  // TODO: any 撲滅運動をする
-  const value = Array.from(alImgs, (alImg) => {
-    const url = alImg.querySelector("a").getAttribute("href");
-    const imgUrl = alImg.querySelector("img").getAttribute("src");
-    const slug = parseInt(
-      url.match(/https:\/\/kyotango-akiya\.jp\/akiya\/(\d+)/)[1]
+  try {
+    const response = await fetch(
+      // https://kyotango-akiya.jp/akiya/?sr=1&kind=賃貸
+      "https://kyotango-akiya.jp/akiya/?sr=1&kind=%E8%B3%83%E8%B2%B8"
     );
-    return {
-      slug,
-      url,
-      imgUrl,
-    };
-  });
-
-  return success(value);
+    const htmlString = await response.text();
+    const document = new DOMParser().parseFromString(htmlString, "text/html");
+    const akiyaList = document.querySelector("body > section > div.akiyalist");
+    const alImgs = akiyaList.querySelectorAll(".al_img");
+    // TODO: any 撲滅運動をする
+    const value = Array.from(alImgs, (alImg) => {
+      const url = alImg.querySelector("a").getAttribute("href");
+      const imgUrl = alImg.querySelector("img").getAttribute("src");
+      const slug = parseInt(
+        url.match(/https:\/\/kyotango-akiya\.jp\/akiya\/(\d+)/)[1]
+      );
+      return {
+        slug,
+        url,
+        imgUrl,
+      };
+    });
+    return success(value);
+  } catch (e) {
+    console.error(e);
+    return failure();
+  }
 }
 
 export const AkiyaFetcher = {
