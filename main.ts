@@ -14,8 +14,8 @@ async function main() {
   console.log(`The current count of akiya is ${akiyas.length}`);
 
   // 2. 現在の空き家の slugs から前回の slugs を引いて差があるか判定
-  const prevAkiyas = await DB.get("chintaiAkiyas");
-  if (!prevAkiyas) {
+  const prevAkiyasResult = await DB.get("chintaiAkiyas");
+  if (!prevAkiyasResult.success || !prevAkiyasResult.value) {
     console.warn(
       "Failed to retrieve previous akiyas. After setting current akiyas, Exit the process."
     );
@@ -27,6 +27,7 @@ async function main() {
       exitOnFailure("Failed to update DB.");
     }
   }
+  const prevAkiyas = prevAkiyasResult.value;
 
   const slugsFrom = (akiyas: Akiya[]) => akiyas.map((a) => a.slug);
   const akiyaSlugsChanges = getArrayChanges(

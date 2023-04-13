@@ -10,6 +10,10 @@ export function failure<T>(): Result<T> {
   return { success: false };
 }
 
+export function map<T, U>(result: Result<T>, fn: (value: T) => U): Result<U> {
+  return result.success ? success(fn(result.value)) : failure();
+}
+
 export function getOrThrow<T>(result: Result<T>, onFailure?: () => never) {
   if (result.success) {
     return result.value;

@@ -3,7 +3,7 @@
 // https://dev.to/rikurouvila/how-to-use-a-github-gist-as-a-free-database-20np
 import { DENO_ENV, GIST_ID, GIST_TOKEN } from "./env.ts";
 import { Akiya } from "./types.ts";
-import { Result, failure, success } from "./result.ts";
+import { Result, failure, map, success } from "./result.ts";
 
 // NOTE: 最初に {} をセットする必要あり。
 const gistFileName =
@@ -28,12 +28,13 @@ type Schema = {
 };
 type SchemaKey = keyof Schema;
 
-async function getRoot(): Promise<Schema | undefined> {
+// NOTE: getRoot と get の返り値は Result<Option<Schema>> のような型が正しいのかもしれない（簡易版なら Result<Schema | undefined>）
+async function getRoot(): Promise<Result<Schema>> {
   try {
     const res = await fetch(`https://api.github.com/gists/${GIST_ID}`);
     if (!res.ok) {
       console.error(`Failed to get Gist: ${res.statusText}`);
-      return undefined;
+      return failure();
     }
 
     const gist: GistResponse = await res.json();
@@ -42,22 +43,18 @@ async function getRoot(): Promise<Schema | undefined> {
       console.error(
         `Gist file "${gistFileName}" not found or content is empty`
       );
-      return undefined;
+      return failure();
     }
 
-    return JSON.parse(file.content);
+    return success(JSON.parse(file.content));
   } catch (error) {
     console.error(`Failed to get Gist: ${error}`);
-    return undefined;
+    return failure();
   }
 }
 
-async function get<T extends SchemaKey>(
-  key: T
-  // TODO: Result で表現したほうがいいかも（もしくは Option 型作って表現する）
-): Promise<Schema[T] | undefined> {
-  const root = await getRoot();
-  return root ? root[key] : undefined;
+async function get<T extends SchemaKey>(key: T): Promise<Result<Schema[T]>> {
+  return map(await getRoot(), (root) => root[key]);
 }
 
 // NOTE: Gist の更新は反映まで数秒のタイムラグがある様子
@@ -66,13 +63,12 @@ async function set<T extends SchemaKey>(
   value: Schema[T]
 ): Promise<Result<void>> {
   const root = await getRoot();
-  if (!root) {
+  if (!root.success) {
     console.error("Failed to update Gist: failed to get root.");
     return failure();
   }
 
-  // deno-lint-ignore no-explicit-any
-  root[key] = value as any;
+  root.value[key] = value;
   try {
     const res = await fetch(`https://api.github.com/gists/${GIST_ID}`, {
       method: "PATCH",
@@ -82,7 +78,7 @@ async function set<T extends SchemaKey>(
       body: JSON.stringify({
         files: {
           [gistFileName]: {
-            content: JSON.stringify(root, null, 2),
+            content: JSON.stringify(root.value, null, 2),
           },
         },
       }),
