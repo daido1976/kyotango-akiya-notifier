@@ -1,0 +1,23 @@
+// Inspired Kotlin std lib & Zod.
+// NOTE: 必要になったら Result<T, E> にして失敗時の型を { success: false; err: E }; にする
+export type Result<T> = { success: true; value: T } | { success: false };
+
+export function success<T>(value: T): Result<T> {
+  return { success: true, value };
+}
+
+export function failure<T>(): Result<T> {
+  return { success: false };
+}
+
+export function getOrThrow<T>(result: Result<T>, onFailure?: () => never) {
+  if (result.success) {
+    return result.value;
+  }
+
+  if (onFailure) {
+    return onFailure();
+  } else {
+    throw new Error("called `unwrapOrThrow` on failure");
+  }
+}

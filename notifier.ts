@@ -4,7 +4,7 @@ import {
   TEST_LINE_USER_ID,
 } from "./env.ts";
 import { Akiya } from "./types.ts";
-import { Result } from "./utils.ts";
+import { Result, failure, success } from "./result.ts";
 
 // See. https://developers.line.biz/ja/reference/messaging-api/#send-broadcast-message-error-response
 type LineApiErrorResponse = {
@@ -49,15 +49,15 @@ async function notifyToBot(
     const res = await sendLineMessage(message, newAkiyas);
     if (res.ok) {
       console.log("Message sent successfully!");
-      return { success: true, value: undefined };
+      return success(undefined);
     } else {
       const errRes: LineApiErrorResponse = await res.json();
       handleErrorResponse(res, errRes);
-      return { success: false };
+      return failure();
     }
   } catch (e) {
     console.error(e);
-    return { success: false };
+    return failure();
   }
 }
 

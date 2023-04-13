@@ -3,7 +3,7 @@
 // https://dev.to/rikurouvila/how-to-use-a-github-gist-as-a-free-database-20np
 import { DENO_ENV, GIST_ID, GIST_TOKEN } from "./env.ts";
 import { Akiya } from "./types.ts";
-import { Result } from "./utils.ts";
+import { Result, failure, success } from "./result.ts";
 
 // NOTE: 最初に {} をセットする必要あり。
 const gistFileName =
@@ -68,7 +68,7 @@ async function set<T extends SchemaKey>(
   const root = await getRoot();
   if (!root) {
     console.error("Failed to update Gist: failed to get root.");
-    return { success: false };
+    return failure();
   }
 
   // deno-lint-ignore no-explicit-any
@@ -90,13 +90,13 @@ async function set<T extends SchemaKey>(
 
     if (!res.ok) {
       console.error(`Failed to update Gist: ${res.statusText}`);
-      return { success: false };
+      return failure();
     }
 
-    return { success: true, value: undefined };
+    return success(undefined);
   } catch (error) {
     console.error(`Failed to update Gist: ${error}`);
-    return { success: false };
+    return failure();
   }
 }
 

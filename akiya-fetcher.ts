@@ -1,7 +1,7 @@
 // See. https://deno.land/manual@v1.32.3/advanced/jsx_dom/linkedom
 import { DOMParser } from "https://esm.sh/linkedom@0.14.25";
 import { Akiya } from "./types.ts";
-import { Result } from "./utils.ts";
+import { Result, success } from "./result.ts";
 
 async function fetchAkiyasBy(
   key: "chintai" | "baibai"
@@ -34,7 +34,7 @@ async function fetchAkiyasBy(
     };
   });
 
-  return { success: true, value };
+  return success(value);
 }
 
 export const AkiyaFetcher = {
