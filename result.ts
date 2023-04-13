@@ -14,6 +14,15 @@ export function map<T, U>(result: Result<T>, fn: (value: T) => U): Result<U> {
   return result.success ? success(fn(result.value)) : failure();
 }
 
+// NOTE: alias of `match`
+export function fold<T, U>(
+  result: Result<T>,
+  onSuccess: (value: T) => U,
+  onFailure: () => U
+): U {
+  return result.success ? onSuccess(result.value) : onFailure();
+}
+
 export function getOrThrow<T>(result: Result<T>, onFailure?: () => never) {
   if (result.success) {
     return result.value;

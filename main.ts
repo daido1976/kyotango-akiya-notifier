@@ -4,7 +4,7 @@ import { DENO_ENV } from "./env.ts";
 import { Akiya } from "./types.ts";
 import { exitOnFailure, exitOnSuccess, getArrayChanges } from "./utils.ts";
 import { Notifier } from "./notifier.ts";
-import { getOrThrow } from "./result.ts";
+import { fold, getOrThrow } from "./result.ts";
 
 async function main() {
   // 1. 京丹後市の空き家バンクから空き家（賃貸のみ）の情報取得
@@ -19,13 +19,11 @@ async function main() {
     console.warn(
       "Failed to retrieve previous akiyas. After setting current akiyas, Exit the process."
     );
-    // TODO: コンビネータ使う
-    const result = await DB.set("chintaiAkiyas", akiyas);
-    if (result.success) {
-      exitOnSuccess("Succeeded to update DB. Please run again later.");
-    } else {
-      exitOnFailure("Failed to update DB.");
-    }
+    return fold(
+      await DB.set("chintaiAkiyas", akiyas),
+      () => exitOnSuccess("Succeeded to update DB. Please run again later."),
+      () => exitOnFailure("Failed to update DB.")
+    );
   }
   const prevAkiyas = prevAkiyasResult.value;
 
