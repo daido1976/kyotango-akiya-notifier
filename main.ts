@@ -47,16 +47,19 @@ async function main() {
   // NOTE: 同じ物件を一度取り下げてからアップし直す場合もあるので、以下の条件で DB を更新する（削除された空き家の情報もそのまま残るということだが、数が少ないので許容する）
   // - 空き家が増えた時のみ DB を更新する
   // - 過去に一度も追加されていない空き家のみ追加する
-  getOrThrow(
+  fold(
     await DB.set("chintaiAkiyas", [...addedAkiyas, ...prevAkiyas]),
+    () => console.log("Succeeded to update DB."),
     () => exitOnFailure("Failed to update DB.")
   );
 
-  getOrThrow(await Notifier.notifyToBot(akiyas.length, addedAkiyas), () =>
-    exitOnFailure("LINE bot notification failed.")
+  fold(
+    await Notifier.notifyToBot(akiyas.length, addedAkiyas),
+    () => console.log("LINE bot notification succeeded."),
+    () => exitOnFailure("LINE bot notification failed.")
   );
 
-  console.log("LINE bot notification succeeded.");
+  exitOnSuccess("All processes have completed successfully.");
 }
 
 if (import.meta.main) {
