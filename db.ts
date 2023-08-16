@@ -102,7 +102,7 @@ export const DB = {
 };
 
 // for debug
-import { delay } from "https://deno.land/std@0.182.0/async/delay.ts";
+import { delay } from "./deps.ts";
 if (import.meta.main) {
   const root = await getRoot();
   console.log({ root });

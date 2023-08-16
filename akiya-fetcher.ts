@@ -1,8 +1,4 @@
-// See. https://deno.land/manual@v1.32.4/advanced/jsx_dom/deno_dom
-import {
-  DOMParser,
-  Element,
-} from "https://deno.land/x/deno_dom@v0.1.37/deno-dom-wasm.ts";
+import { DOMParser, Element } from "./deps.ts";
 import { Akiya } from "./types.ts";
 import { Result, failure, success } from "./result.ts";
 import { expect } from "./maybe.ts";
