@@ -5,12 +5,12 @@ import { Result, failure, success } from "./lib/result.ts";
 
 async function fetchAkiyasBy(kind: AkiyaKind): Promise<Result<Akiya[]>> {
   const kindParams = kind === "chintai" ? "賃貸" : "売買";
+  // e.g. https://kyotango-akiya.jp/akiya/?sr=1&kind=賃貸
+  const url = `https://kyotango-akiya.jp/akiya/?sr=1&kind=${kindParams}`;
+  console.log(`Fetching akiyas from "${url}"`);
 
   try {
-    const response = await fetch(
-      // e.g. https://kyotango-akiya.jp/akiya/?sr=1&kind=賃貸
-      `https://kyotango-akiya.jp/akiya/?sr=1&kind=${encodeURI(kindParams)}}`
-    );
+    const response = await fetch(url);
     const htmlString = await response.text();
     const document = new DOMParser().parseFromString(htmlString, "text/html");
     const akiyaList = expect(
