@@ -1,8 +1,8 @@
 import { AkiyaFetcher } from "./internal/akiya-fetcher.ts";
-import { DB } from "./internal/db.ts";
+import { DB, toSchemaKey } from "./internal/db.ts";
 import { DENO_ENV } from "./internal/env.ts";
 import { Notifier } from "./internal/notifier.ts";
-import { Akiya } from "./internal/types.ts";
+import { Akiya, AkiyaKind } from "./internal/types.ts";
 import { getOrThrow, fold } from "./internal/lib/result.ts";
 import {
   exitOnFailure,
@@ -10,21 +10,21 @@ import {
   getArrayChanges,
 } from "./internal/lib/utils.ts";
 
-async function main() {
+async function main(kind: AkiyaKind) {
   // 1. 京丹後市の空き家バンクから空き家（賃貸のみ）の情報取得
-  const akiyas = getOrThrow(await AkiyaFetcher.fetchAkiyasBy("chintai"), () =>
+  const akiyas = getOrThrow(await AkiyaFetcher.fetchAkiyasBy(kind), () =>
     exitOnFailure("Failed to retrieve akiyas. Exiting the process.")
   );
   console.log(`The current count of akiya is ${akiyas.length}`);
 
   // 2. 現在の空き家の slugs から前回の slugs を引いて差があるか判定
-  const prevAkiyasResult = await DB.get("chintaiAkiyas");
+  const prevAkiyasResult = await DB.get(toSchemaKey(kind));
   if (!prevAkiyasResult.success || !prevAkiyasResult.value) {
     console.warn(
       "Failed to retrieve previous akiyas. After setting current akiyas, Exit the process."
     );
     return fold(
-      await DB.set("chintaiAkiyas", akiyas),
+      await DB.set(toSchemaKey(kind), akiyas),
       () => exitOnSuccess("Succeeded to update DB. Please run again later."),
       () => exitOnFailure("Failed to update DB.")
     );
@@ -52,7 +52,7 @@ async function main() {
   // - 空き家が増えた時のみ DB を更新する
   // - 過去に一度も追加されていない空き家のみ追加する
   fold(
-    await DB.set("chintaiAkiyas", [...addedAkiyas, ...prevAkiyas]),
+    await DB.set(toSchemaKey(kind), [...addedAkiyas, ...prevAkiyas]),
     () => console.log("Succeeded to update DB."),
     () => exitOnFailure("Failed to update DB.")
   );
@@ -68,5 +68,5 @@ async function main() {
 
 if (import.meta.main) {
   console.log(`DENO_ENV is "${DENO_ENV}"`);
-  await main();
+  await main("chintai");
 }

@@ -2,7 +2,7 @@
 // https://github.com/TimMikeladze/gist-database
 // https://dev.to/rikurouvila/how-to-use-a-github-gist-as-a-free-database-20np
 import { DENO_ENV, GIST_ID, GIST_TOKEN } from "./env.ts";
-import { Akiya } from "./types.ts";
+import { Akiya, AkiyaKind } from "./types.ts";
 
 // NOTE: 最初に {} をセットする必要あり。
 const gistFileName =
@@ -24,8 +24,13 @@ type GistResponse = {
 
 type Schema = {
   chintaiAkiyas?: Akiya[];
+  baibaiAkiyas?: Akiya[];
 };
 type SchemaKey = keyof Schema;
+
+export function toSchemaKey(kind: AkiyaKind): SchemaKey {
+  return kind === "chintai" ? "chintaiAkiyas" : "baibaiAkiyas";
+}
 
 // TODO: getRoot と get の返り値の型を Result<Maybe<Schema>> にする
 async function getRoot(): Promise<Result<Schema>> {
