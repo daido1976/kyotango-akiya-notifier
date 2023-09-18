@@ -4,7 +4,7 @@ import {
   TEST_LINE_USER_ID,
 } from "./env.ts";
 import { Akiya } from "./types.ts";
-import { Result, failure, success } from "./result.ts";
+import { Result, success, failure } from "./lib/result.ts";
 
 // See. https://developers.line.biz/ja/reference/messaging-api/#send-broadcast-message-error-response
 type LineApiErrorResponse = {

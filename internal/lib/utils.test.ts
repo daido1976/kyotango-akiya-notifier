@@ -1,4 +1,4 @@
-import { describe, it, assertEquals } from "./deps.ts";
+import { describe, it, assertEquals } from "../deps.ts";
 import { difference, getArrayChanges } from "./utils.ts";
 
 describe("difference", () => {

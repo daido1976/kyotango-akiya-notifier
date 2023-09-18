@@ -3,7 +3,6 @@
 // https://dev.to/rikurouvila/how-to-use-a-github-gist-as-a-free-database-20np
 import { DENO_ENV, GIST_ID, GIST_TOKEN } from "./env.ts";
 import { Akiya } from "./types.ts";
-import { Result, failure, map, success } from "./result.ts";
 
 // NOTE: 最初に {} をセットする必要あり。
 const gistFileName =
@@ -103,6 +102,7 @@ export const DB = {
 
 // for debug
 import { delay } from "./deps.ts";
+import { Result, failure, success, map } from "./lib/result.ts";
 if (import.meta.main) {
   const root = await getRoot();
   console.log({ root });

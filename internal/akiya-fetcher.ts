@@ -1,7 +1,7 @@
 import { DOMParser, Element } from "./deps.ts";
 import { Akiya } from "./types.ts";
-import { Result, failure, success } from "./result.ts";
-import { expect } from "./maybe.ts";
+import { expect } from "./lib/maybe.ts";
+import { Result, failure, success } from "./lib/result.ts";
 
 async function fetchAkiyasBy(
   key: "chintai" | "baibai"

@@ -1,10 +1,14 @@
-import { AkiyaFetcher } from "./akiya-fetcher.ts";
-import { DB } from "./db.ts";
-import { DENO_ENV } from "./env.ts";
-import { Akiya } from "./types.ts";
-import { exitOnFailure, exitOnSuccess, getArrayChanges } from "./utils.ts";
-import { Notifier } from "./notifier.ts";
-import { fold, getOrThrow } from "./result.ts";
+import { AkiyaFetcher } from "./internal/akiya-fetcher.ts";
+import { DB } from "./internal/db.ts";
+import { DENO_ENV } from "./internal/env.ts";
+import { Notifier } from "./internal/notifier.ts";
+import { Akiya } from "./internal/types.ts";
+import { getOrThrow, fold } from "./internal/lib/result.ts";
+import {
+  exitOnFailure,
+  exitOnSuccess,
+  getArrayChanges,
+} from "./internal/lib/utils.ts";
 
 async function main() {
   // 1. 京丹後市の空き家バンクから空き家（賃貸のみ）の情報取得
