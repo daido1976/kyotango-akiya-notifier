@@ -1,11 +1,9 @@
 import { DOMParser, Element } from "./deps.ts";
-import { Akiya } from "./types.ts";
+import { Akiya, AkiyaKind } from "./types.ts";
 import { expect } from "./lib/maybe.ts";
 import { Result, failure, success } from "./lib/result.ts";
 
-async function fetchAkiyasBy(
-  key: "chintai" | "baibai"
-): Promise<Result<Akiya[]>> {
+async function fetchAkiyasBy(key: AkiyaKind): Promise<Result<Akiya[]>> {
   // NOTE: 必要になったら売買の方もサポートする。
   if (key === "baibai") {
     throw new Error("Not supported: baibai akiya count retrieval.");
