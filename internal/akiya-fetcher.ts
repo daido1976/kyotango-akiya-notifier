@@ -3,16 +3,13 @@ import { Akiya, AkiyaKind } from "./types.ts";
 import { expect } from "./lib/maybe.ts";
 import { Result, failure, success } from "./lib/result.ts";
 
-async function fetchAkiyasBy(key: AkiyaKind): Promise<Result<Akiya[]>> {
-  // NOTE: 必要になったら売買の方もサポートする。
-  if (key === "baibai") {
-    throw new Error("Not supported: baibai akiya count retrieval.");
-  }
+async function fetchAkiyasBy(kind: AkiyaKind): Promise<Result<Akiya[]>> {
+  const kindParams = kind === "chintai" ? "賃貸" : "売買";
 
   try {
     const response = await fetch(
-      // https://kyotango-akiya.jp/akiya/?sr=1&kind=賃貸
-      "https://kyotango-akiya.jp/akiya/?sr=1&kind=%E8%B3%83%E8%B2%B8"
+      // e.g. https://kyotango-akiya.jp/akiya/?sr=1&kind=賃貸
+      `https://kyotango-akiya.jp/akiya/?sr=1&kind=${encodeURI(kindParams)}}`
     );
     const htmlString = await response.text();
     const document = new DOMParser().parseFromString(htmlString, "text/html");
