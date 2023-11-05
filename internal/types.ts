@@ -5,3 +5,7 @@ export type Akiya = {
 };
 
 export type AkiyaKind = "chintai" | "baibai";
+
+export function isAkiyaKind(value: unknown): value is AkiyaKind {
+  return value === "chintai" || value === "baibai";
+}

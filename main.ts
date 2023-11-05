@@ -2,16 +2,17 @@ import { AkiyaFetcher } from "./internal/akiya-fetcher.ts";
 import { DB, toSchemaKey } from "./internal/db.ts";
 import { DENO_ENV } from "./internal/env.ts";
 import { Notifier } from "./internal/notifier.ts";
-import { Akiya, AkiyaKind } from "./internal/types.ts";
+import { Akiya, AkiyaKind, isAkiyaKind } from "./internal/types.ts";
 import { getOrThrow, fold } from "./internal/lib/result.ts";
 import {
   exitOnFailure,
   exitOnSuccess,
   getArrayChanges,
 } from "./internal/lib/utils.ts";
+import { parse } from "./internal/deps.ts";
 
 async function main(kind: AkiyaKind) {
-  // 1. 京丹後市の空き家バンクから空き家（賃貸のみ）の情報取得
+  // 1. 京丹後市の空き家バンクから賃貸 or 売買の空き家の情報取得
   const akiyas = getOrThrow(await AkiyaFetcher.fetchAkiyasBy(kind), () =>
     exitOnFailure("Failed to retrieve akiyas. Exiting the process.")
   );
@@ -58,7 +59,7 @@ async function main(kind: AkiyaKind) {
   );
 
   fold(
-    await Notifier.notifyToBot(akiyas.length, addedAkiyas),
+    await Notifier.notifyToBot(akiyas.length, addedAkiyas, kind),
     () => console.log("LINE bot notification succeeded."),
     () => exitOnFailure("LINE bot notification failed.")
   );
@@ -67,6 +68,13 @@ async function main(kind: AkiyaKind) {
 }
 
 if (import.meta.main) {
+  // e.g. deno run -A main.ts --kind=chintai
+  // e.g. deno run -A main.ts --kind=baibai
+  const { kind } = parse(Deno.args);
+  if (!isAkiyaKind(kind)) {
+    exitOnFailure(`Invalid AkiyaKind: ${kind}`);
+  }
   console.log(`DENO_ENV is "${DENO_ENV}"`);
-  await main("chintai");
+  console.log(`AkiyaKind is "${kind}"`);
+  await main(kind);
 }

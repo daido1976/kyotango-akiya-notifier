@@ -3,7 +3,7 @@ import {
   LINE_CHANNEL_ACCESS_TOKEN,
   TEST_LINE_USER_ID,
 } from "./env.ts";
-import { Akiya } from "./types.ts";
+import { Akiya, AkiyaKind } from "./types.ts";
 import { Result, success, failure } from "./lib/result.ts";
 
 // See. https://developers.line.biz/ja/reference/messaging-api/#send-broadcast-message-error-response
@@ -42,9 +42,11 @@ type LineRequestBody = {
 
 async function notifyToBot(
   currentCount: number,
-  newAkiyas: Akiya[]
+  newAkiyas: Akiya[],
+  kind: AkiyaKind
 ): Promise<Result<void>> {
-  const message = `新しい賃貸の空き家が ${newAkiyas.length} 件追加されました✨\n現在の空き家の件数は ${currentCount} 件です🏠\nhttps://kyotango-akiya.jp/akiya/?sr=1&kind=%E8%B3%83%E8%B2%B8`;
+  const kindForDisplay = kind === "chintai" ? "賃貸" : "売買";
+  const message = `新しい${kindForDisplay}の空き家が ${newAkiyas.length} 件追加されました✨\n現在の空き家の件数は ${currentCount} 件です🏠\nhttps://kyotango-akiya.jp/akiya/?sr=1&kind=%E8%B3%83%E8%B2%B8`;
   try {
     const res = await sendLineMessage(message, newAkiyas);
     if (res.ok) {
@@ -136,25 +138,29 @@ export const Notifier = {
 
 // for debug
 if (import.meta.main) {
-  const result = await Notifier.notifyToBot(20, [
-    {
-      slug: 8100,
-      url: "https://kyotango-akiya.jp/akiya/8100/",
-      imgUrl:
-        "https://kyotango-akiya.jp/wp/wp-content/uploads/2023/04/IMG20230404132409-1024x768.jpg",
-    },
-    {
-      slug: 8033,
-      url: "https://kyotango-akiya.jp/akiya/8033/",
-      imgUrl:
-        "https://kyotango-akiya.jp/wp/wp-content/uploads/2023/04/R1-092-1.jpg",
-    },
-    {
-      slug: 7922,
-      url: "https://kyotango-akiya.jp/akiya/7922/",
-      imgUrl:
-        "https://kyotango-akiya.jp/wp/wp-content/uploads/2023/03/IMG_4744.jpg",
-    },
-  ]);
+  const result = await Notifier.notifyToBot(
+    20,
+    [
+      {
+        slug: 8100,
+        url: "https://kyotango-akiya.jp/akiya/8100/",
+        imgUrl:
+          "https://kyotango-akiya.jp/wp/wp-content/uploads/2023/04/IMG20230404132409-1024x768.jpg",
+      },
+      {
+        slug: 8033,
+        url: "https://kyotango-akiya.jp/akiya/8033/",
+        imgUrl:
+          "https://kyotango-akiya.jp/wp/wp-content/uploads/2023/04/R1-092-1.jpg",
+      },
+      {
+        slug: 7922,
+        url: "https://kyotango-akiya.jp/akiya/7922/",
+        imgUrl:
+          "https://kyotango-akiya.jp/wp/wp-content/uploads/2023/03/IMG_4744.jpg",
+      },
+    ],
+    "chintai"
+  );
   console.log({ result });
 }
