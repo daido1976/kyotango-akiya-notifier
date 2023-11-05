@@ -19,7 +19,9 @@ describe("getArrayChanges", () => {
     assertEquals(getArrayChanges([], []), {
       added: [],
       removed: [],
-      changed: false,
+      isAdded: false,
+      isRemoved: false,
+      isChanged: false,
     });
   });
 
@@ -27,7 +29,9 @@ describe("getArrayChanges", () => {
     assertEquals(getArrayChanges([1, 2, 3], []), {
       added: [],
       removed: [1, 2, 3],
-      changed: true,
+      isAdded: false,
+      isRemoved: true,
+      isChanged: true,
     });
   });
 
@@ -35,7 +39,9 @@ describe("getArrayChanges", () => {
     assertEquals(getArrayChanges([], [1, 2, 3]), {
       added: [1, 2, 3],
       removed: [],
-      changed: true,
+      isAdded: true,
+      isRemoved: false,
+      isChanged: true,
     });
   });
 
@@ -43,7 +49,9 @@ describe("getArrayChanges", () => {
     assertEquals(getArrayChanges([1, 2, 3], [1, 2, 3]), {
       added: [],
       removed: [],
-      changed: false,
+      isAdded: false,
+      isRemoved: false,
+      isChanged: false,
     });
   });
 
@@ -51,7 +59,9 @@ describe("getArrayChanges", () => {
     assertEquals(getArrayChanges([1, 2, 3], [2, 3, 4]), {
       added: [4],
       removed: [1],
-      changed: true,
+      isAdded: true,
+      isRemoved: true,
+      isChanged: true,
     });
   });
 });

@@ -8,13 +8,17 @@ export function getArrayChanges<T extends string | number>(
 ): {
   added: T[];
   removed: T[];
-  changed: boolean;
+  isAdded: boolean;
+  isRemoved: boolean;
+  isChanged: boolean;
 } {
   const added = difference(newArray, oldArray);
   const removed = difference(oldArray, newArray);
-  const changed = added.length > 0 || removed.length > 0;
+  const isAdded = added.length > 0;
+  const isRemoved = removed.length > 0;
+  const isChanged = isAdded || isRemoved;
 
-  return { added, removed, changed };
+  return { added, removed, isAdded, isRemoved, isChanged };
 }
 
 export function exitOnSuccess(message?: string): never {

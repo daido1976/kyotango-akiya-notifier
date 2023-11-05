@@ -37,16 +37,14 @@ async function main(kind: AkiyaKind) {
     slugsFrom(akiyas)
   );
   console.log({ akiyaSlugsChanges });
+  if (!akiyaSlugsChanges.isAdded) {
+    exitOnSuccess("No need for notification as akiyas has not increased.");
+  }
 
-  const isAkiyasIncreased = akiyaSlugsChanges.added.length > 0;
+  // 3. 新規の空き家があれば DB（Gist）に保存 & LINE ボットで通知
   const addedAkiyas = akiyas.filter((a) =>
     akiyaSlugsChanges.added.includes(a.slug)
   );
-
-  // 3. 新規の空き家があれば DB（Gist）に保存 & LINE ボットで通知
-  if (!isAkiyasIncreased) {
-    exitOnSuccess("No need for notification as akiyas has not increased.");
-  }
 
   // NOTE: 同じ物件を一度取り下げてからアップし直す場合もあるので、以下の条件で DB を更新する（削除された空き家の情報もそのまま残るということだが、数が少ないので許容する）
   // - 空き家が増えた時のみ DB を更新する
