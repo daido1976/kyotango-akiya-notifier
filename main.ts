@@ -2,7 +2,7 @@ import { AkiyaFetcher } from "./internal/akiya-fetcher.ts";
 import { DB, toSchemaKey } from "./internal/db.ts";
 import { DENO_ENV } from "./internal/env.ts";
 import { Notifier } from "./internal/notifier.ts";
-import { AkiyaKind, isAkiyaKind, slugsFrom } from "./internal/Akiya.ts";
+import { AkiyaKind, isAkiyaKind, toSlugs } from "./internal/Akiya.ts";
 import { getOrThrow, fold } from "./internal/lib/result.ts";
 import {
   exitOnFailure,
@@ -33,8 +33,8 @@ async function main(kind: AkiyaKind) {
   const prevAkiyas = prevAkiyasResult.value;
 
   const akiyaSlugsChanges = getArrayChanges(
-    slugsFrom(prevAkiyas),
-    slugsFrom(akiyas)
+    toSlugs(prevAkiyas),
+    toSlugs(akiyas)
   );
   console.log({ akiyaSlugsChanges });
   if (!akiyaSlugsChanges.isAdded) {

@@ -1,5 +1,5 @@
 import { DOMParser, Element } from "./deps.ts";
-import { Akiya, AkiyaKind, kindToKanji } from "./Akiya.ts";
+import { Akiya, AkiyaKind, kindToKanji, tryToSlug } from "./Akiya.ts";
 import { expect } from "./lib/maybe.ts";
 import { Result, failure, success } from "./lib/result.ts";
 
@@ -27,14 +27,9 @@ async function fetchAkiyasBy(kind: AkiyaKind): Promise<Result<Akiya[]>> {
         alImg.querySelector("img")?.getAttribute("src"),
         "Failed to retrieve the imgUrl attribute."
       );
-      const slugStr = expect(
-        url.match(/https:\/\/kyotango-akiya\.jp\/akiya\/(\d+)/)?.[1],
-        "Failed to match the URL with the regular expression."
-      );
-      const slug = parseInt(slugStr);
 
       return {
-        slug,
+        slug: tryToSlug(url),
         url,
         imgUrl,
       };
@@ -52,6 +47,6 @@ export const AkiyaFetcher = {
 
 // for debug
 if (import.meta.main) {
-  const akiyas = await AkiyaFetcher.fetchAkiyasBy("chintai");
-  console.log({ akiyas });
+  const akiyasResult = await AkiyaFetcher.fetchAkiyasBy("chintai");
+  console.log({ akiyasResult });
 }

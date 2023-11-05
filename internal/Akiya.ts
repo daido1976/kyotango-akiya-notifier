@@ -1,10 +1,21 @@
+import { expect } from "./lib/maybe.ts";
+
 export type Akiya = {
   slug: number;
   url: string;
   imgUrl: string;
 };
 
-export const slugsFrom = (akiyas: Akiya[]) => akiyas.map((a) => a.slug);
+export const tryToSlug = (url: string) => {
+  const regex = /https:\/\/kyotango-akiya\.jp\/akiya\/(\d+)/;
+  const slugStr = expect(
+    url.match(regex)?.[1],
+    `URL does not match the expected format. Expected pattern "https://kyotango-akiya.jp/akiya/[slug]". Received URL: "${url}"`
+  );
+  return Number(slugStr);
+};
+
+export const toSlugs = (akiyas: Akiya[]) => akiyas.map((a) => a.slug);
 
 export type AkiyaKind = "chintai" | "baibai";
 
