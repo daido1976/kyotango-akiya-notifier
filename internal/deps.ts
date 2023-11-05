@@ -9,5 +9,5 @@ export {
 
 // for debug or test
 export { delay } from "https://deno.land/std@0.205.0/async/delay.ts";
-export { assertEquals } from "https://deno.land/std@0.205.0/testing/asserts.ts";
+export { assertEquals } from "https://deno.land/std@0.205.0/assert/mod.ts";
 export { describe, it } from "https://deno.land/std@0.205.0/testing/bdd.ts";
