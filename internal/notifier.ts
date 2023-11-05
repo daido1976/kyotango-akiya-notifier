@@ -77,10 +77,10 @@ async function sendLineMessage(
       }
     : { message, url: `${messagingApiPrefix}/broadcast` };
 
+  // NOTE: 新着の空き家を 5 件以上表示しても見づらいだけなので、5 件以降の要素は無視する。
+  // 一応、LINE の仕様上は 1 画像カルーセルで 10 件まで表示できる。
   // See. https://developers.line.biz/en/reference/messaging-api/#image-carousel
-  const MAX_COLUMNS = 10;
-  // NOTE: 新着の空き家件数が 10 件より多くなることはほぼないので、10 件以降の要素を切り捨てている。
-  // 必要になったら type: "template" の message を 10 件ずつに分けて送信するように修正する。
+  const MAX_COLUMNS = 5;
   const columns = akiyas.slice(0, MAX_COLUMNS).map((akiya) => ({
     imageUrl: akiya.imgUrl,
     action: {
