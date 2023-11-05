@@ -3,7 +3,7 @@ import {
   LINE_CHANNEL_ACCESS_TOKEN,
   TEST_LINE_USER_ID,
 } from "./env.ts";
-import { Akiya, AkiyaKind } from "./types.ts";
+import { Akiya, AkiyaKind, kindToKanji } from "./Akiya.ts";
 import { Result, success, failure } from "./lib/result.ts";
 
 // See. https://developers.line.biz/ja/reference/messaging-api/#send-broadcast-message-error-response
@@ -45,8 +45,11 @@ async function notifyToBot(
   newAkiyas: Akiya[],
   kind: AkiyaKind
 ): Promise<Result<void>> {
-  const kindForDisplay = kind === "chintai" ? "賃貸" : "売買";
-  const message = `新しい${kindForDisplay}の空き家が ${newAkiyas.length} 件追加されました✨\n現在の空き家の件数は ${currentCount} 件です🏠\nhttps://kyotango-akiya.jp/akiya/?sr=1&kind=%E8%B3%83%E8%B2%B8`;
+  const message = `新しい${kindToKanji(kind)}の空き家が ${
+    newAkiyas.length
+  } 件追加されました✨\n現在の空き家の件数は ${currentCount} 件です🏠\nhttps://kyotango-akiya.jp/akiya/?sr=1&kind=${kindToKanji(
+    kind
+  )}`;
   try {
     const res = await sendLineMessage(message, newAkiyas);
     if (res.ok) {

@@ -2,7 +2,7 @@
 // https://github.com/TimMikeladze/gist-database
 // https://dev.to/rikurouvila/how-to-use-a-github-gist-as-a-free-database-20np
 import { DENO_ENV, GIST_ID, GIST_TOKEN } from "./env.ts";
-import { Akiya, AkiyaKind } from "./types.ts";
+import { Akiya, AkiyaKind } from "./Akiya.ts";
 
 // NOTE: 最初に {} をセットする必要あり。
 const gistFileName =

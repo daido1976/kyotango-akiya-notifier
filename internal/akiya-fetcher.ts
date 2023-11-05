@@ -1,12 +1,11 @@
 import { DOMParser, Element } from "./deps.ts";
-import { Akiya, AkiyaKind } from "./types.ts";
+import { Akiya, AkiyaKind, kindToKanji } from "./Akiya.ts";
 import { expect } from "./lib/maybe.ts";
 import { Result, failure, success } from "./lib/result.ts";
 
 async function fetchAkiyasBy(kind: AkiyaKind): Promise<Result<Akiya[]>> {
-  const kindParams = kind === "chintai" ? "賃貸" : "売買";
   // e.g. https://kyotango-akiya.jp/akiya/?sr=1&kind=賃貸
-  const url = `https://kyotango-akiya.jp/akiya/?sr=1&kind=${kindParams}`;
+  const url = `https://kyotango-akiya.jp/akiya/?sr=1&kind=${kindToKanji(kind)}`;
   console.log(`Fetching akiyas from "${url}"`);
 
   try {
