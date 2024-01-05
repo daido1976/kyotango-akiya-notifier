@@ -10,7 +10,7 @@ GitHub Actions のワークフローでスケジュール実行しています�
 
 ```sh
 # Run entire process.
-$ deno run -A main.ts
+$ deno run -A main.ts --kind=baibai
 # Run individual process.
-$ deno run -A akiya-fetcher.ts
+$ deno run -A internal/akiya-fetcher.ts
 ```
