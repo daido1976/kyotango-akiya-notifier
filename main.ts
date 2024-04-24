@@ -9,7 +9,7 @@ import {
   exitOnSuccess,
   getArrayChanges,
 } from "./internal/lib/utils.ts";
-import { parse } from "./internal/deps.ts";
+import { parseArgs } from "./internal/deps.ts";
 
 async function main(kind: AkiyaKind) {
   // 1. 京丹後市の空き家バンクから賃貸 or 売買の空き家の情報取得
@@ -67,7 +67,7 @@ async function main(kind: AkiyaKind) {
 if (import.meta.main) {
   // e.g. deno run -A main.ts --kind=chintai
   // e.g. deno run -A main.ts --kind=baibai
-  const { kind } = parse(Deno.args);
+  const { kind } = parseArgs(Deno.args);
   if (!isAkiyaKind(kind)) {
     exitOnFailure(`Invalid AkiyaKind: ${kind}`);
   }

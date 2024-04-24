@@ -1,5 +1,5 @@
 export { load } from "https://deno.land/std@0.223.0/dotenv/mod.ts";
-export { parse } from "https://deno.land/std@0.223.0/flags/mod.ts";
+export { parseArgs } from "https://deno.land/std@0.223.0/cli/parse_args.ts";
 
 // See. https://deno.land/manual@v1.36.1/advanced/jsx_dom/deno_dom
 export {
