@@ -18,7 +18,7 @@ on:
         description: "Select Akiya kind"
         type: "choice"
         required: true
-        default: "baibai"
+        default: "chintai"
         options:
           - chintai
           - baibai
@@ -43,4 +43,4 @@ jobs:
           GIST_TOKEN: ${{ secrets.GIST_TOKEN }}
           DENO_ENV: ${{ inputs.env || 'production' }} # cron で実行された場合はデフォルト値が使われる
           TEST_LINE_USER_ID: ${{ secrets.TEST_LINE_USER_ID }}
-        run: deno run --allow-read --allow-env --allow-net main.ts --kind=${{ inputs.kind || 'baibai' }}
+        run: deno run --allow-read --allow-env --allow-net main.ts --kind=${{ inputs.kind || 'chintai' }}
